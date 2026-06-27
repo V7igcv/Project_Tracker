@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 import {
     Menu,
@@ -9,9 +9,17 @@ import {
     LogOut,
 } from 'lucide-vue-next';
 
-const collapsed = ref(false);
+const storageKey = 'sidebar-collapsed';
 
-const page = usePage();
+const collapsed = ref(
+    typeof window !== 'undefined'
+        ? localStorage.getItem(storageKey) === 'true'
+        : false,
+);
+
+watch(collapsed, (value) => {
+    localStorage.setItem(storageKey, String(value));
+});
 
 const toggleSidebar = () => {
     collapsed.value = !collapsed.value;
@@ -67,9 +75,9 @@ const toggleSidebar = () => {
 
             <!-- Projects -->
             <Link
-                href="#"
+                :href="route('projects')"
                 :class="[
-                    route().current('projects.*')
+                    route().current('projects')
                         ? 'bg-[#A76A00] text-white'
                         : 'hover:bg-white/10',
                 ]"
