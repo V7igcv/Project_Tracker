@@ -2,6 +2,7 @@
 import { reactiveOmit } from "@vueuse/core";
 import { ProgressIndicator, ProgressRoot } from "reka-ui";
 import { cn } from "@/lib/utils";
+import { computed } from "vue";
 
 const props = defineProps({
   modelValue: { type: [Number, null], required: false, default: 0 },
@@ -10,6 +11,11 @@ const props = defineProps({
   getValueText: { type: Function, required: false },
   asChild: { type: Boolean, required: false },
   as: { type: null, required: false },
+  indicatorClass: { 
+    type: String, 
+    required: false,
+    default: 'bg-primary' 
+  },
   class: {
     type: [Boolean, null, String, Object, Array],
     required: false,
@@ -17,7 +23,7 @@ const props = defineProps({
   },
 });
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, "class", "indicatorClass");
 </script>
 
 <template>
@@ -27,13 +33,17 @@ const delegatedProps = reactiveOmit(props, "class");
     :class="
       cn(
         'bg-muted h-1.5 rounded-full relative flex w-full items-center overflow-x-hidden',
+        'h-2',  
         props.class,
       )
     "
   >
     <ProgressIndicator
       data-slot="progress-indicator"
-      class="bg-primary size-full flex-1 transition-all"
+      :class="cn(
+        'size-full flex-1 transition-all',
+        props.indicatorClass
+      )"
       :style="`transform: translateX(-${100 - (props.modelValue ?? 0)}%);`"
     />
   </ProgressRoot>

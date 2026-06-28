@@ -4,6 +4,11 @@ import { Primitive } from "reka-ui";
 import { cn } from "@/lib/utils";
 import { badgeVariants } from ".";
 
+import { computed } from 'vue';
+
+const test = computed(() => badgeVariants({ variant: 'destructive' }));
+console.log(test.value);
+
 const props = defineProps({
   asChild: { type: Boolean, required: false },
   as: { type: null, required: false },
@@ -15,7 +20,11 @@ const props = defineProps({
   },
 });
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(
+    props,
+    "class",
+    "variant"
+);
 </script>
 
 <template>

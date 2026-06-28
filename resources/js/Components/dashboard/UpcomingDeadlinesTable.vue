@@ -21,9 +21,9 @@ import {
 
                 <TableRow>
 
-                    <TableHead>Task Name</TableHead>
-                    <TableHead>Project</TableHead>
-                    <TableHead>Due</TableHead>
+                    <TableHead class="font-extrabold">TASK NAME</TableHead>
+                    <TableHead class="font-extrabold">PROJECT</TableHead>
+                    <TableHead class="font-extrabold">DUE</TableHead>
 
                 </TableRow>
 

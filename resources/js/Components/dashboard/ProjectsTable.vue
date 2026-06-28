@@ -12,6 +12,12 @@ import {
 
 import { Progress } from '@/Components/ui/progress';
 import { Badge } from '@/Components/ui/badge';
+import {
+    getPriorityVariant,
+    getPriorityLabel,
+    getProgressColor,
+    getPercentageColor,
+} from '@/lib/projectUtils';
 </script>
 
 <template>
@@ -21,10 +27,10 @@ import { Badge } from '@/Components/ui/badge';
 
             <TableHeader>
                 <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead class="w-[320px]">Progress</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Last Updated</TableHead>
+                    <TableHead class="font-extrabold">NAME</TableHead>
+                    <TableHead class="w-[320px] font-extrabold">PROGRESS</TableHead>
+                    <TableHead class="font-extrabold">PRIORITY</TableHead>
+                    <TableHead class="font-extrabold">LAST UPDATED</TableHead>
                 </TableRow>
             </TableHeader>
 
@@ -40,9 +46,15 @@ import { Badge } from '@/Components/ui/badge';
 
                         <div class="space-y-2">
 
-                            <Progress :model-value="65" />
+                            <Progress 
+                                :model-value="65" 
+                                :indicator-class="getProgressColor(65)"
+                            />
 
-                            <p class="text-xs text-gray-500">
+                            <p 
+                                class="text-xs font-semibold"
+                                :class="getPercentageColor(65)"
+                            >
                                 65%
                             </p>
 
@@ -51,7 +63,9 @@ import { Badge } from '@/Components/ui/badge';
                     </TableCell>
 
                     <TableCell>
-                            High
+                        <Badge :variant="getPriorityVariant('High')">
+                            {{ getPriorityLabel('High') }}
+                        </Badge>
                     </TableCell>
 
                     <TableCell>
@@ -70,9 +84,15 @@ import { Badge } from '@/Components/ui/badge';
 
                         <div class="space-y-2">
 
-                            <Progress :model-value="35" />
+                            <Progress 
+                                :model-value="35" 
+                                :indicator-class="getProgressColor(35)"
+                            />
 
-                            <p class="text-xs text-gray-500">
+                            <p 
+                                class="text-xs font-semibold"
+                                :class="getPercentageColor(35)"
+                            >
                                 35%
                             </p>
 
@@ -81,7 +101,9 @@ import { Badge } from '@/Components/ui/badge';
                     </TableCell>
 
                     <TableCell>
-                            Medium
+                        <Badge :variant="getPriorityVariant('Medium')">
+                            {{ getPriorityLabel('Medium') }}
+                        </Badge>
                     </TableCell>
 
                     <TableCell>

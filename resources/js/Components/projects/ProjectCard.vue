@@ -22,6 +22,16 @@ import {
     Trash2,
 } from 'lucide-vue-next';
 
+import {
+    getPriorityVariant,
+    getPriorityLabel,
+    getProgressColor,
+    getPercentageColor,
+    getProgressStatus,
+} from '@/lib/projectUtils';
+
+import { computed } from 'vue';
+
 const props = defineProps({
     title: {
         type: String,
@@ -49,128 +59,92 @@ const emit = defineEmits([
     'delete',
 ]);
 
-const priorityBadge = () => {
-    switch (props.priority) {
-        case 'High':
-            return 'destructive';
+const priorityVariant = computed(() =>
+    getPriorityVariant(props.priority)
+);
 
-        case 'Low':
-            return 'secondary';
+const priorityLabel = computed(() =>
+    getPriorityLabel(props.priority)
+);
 
-        default:
-            return 'default';
-    }
-};
+const progressColor = computed(() =>
+    getProgressColor(props.progress)
+);
 
-const progressStatus = () => {
-    if (props.progress === 0)
-        return 'Not Yet Started';
+const percentageColor = computed(() =>
+    getPercentageColor(props.progress)
+);
 
-    if (props.progress === 100)
-        return 'Completed';
-
-    return 'In Progress';
-};
+const progressStatus = computed(() =>
+    getProgressStatus(props.progress)
+);
 </script>
 
 <template>
     <Card
         class="transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
     >
-        <CardHeader class="pb-4">
-
+        <CardHeader class="pb-3">
             <div class="flex items-start justify-between gap-4">
-
                 <div>
-
-                    <CardTitle
-                        class="text-xl font-semibold"
-                    >
+                    <CardTitle class="text-xl font-semibold">
                         {{ title }}
                     </CardTitle>
-
-                    <p
-                        class="mt-2 line-clamp-3 text-sm text-gray-500"
-                    >
+                    <p class="mt-2 line-clamp-3 text-sm text-gray-500">
                         {{ description }}
                     </p>
-
                 </div>
 
                 <DropdownMenu>
-
                     <DropdownMenuTrigger as-child>
-
-                        <button
-                            class="rounded-md p-2 transition hover:bg-gray-100"
-                        >
+                        <button class="rounded-md p-2 transition hover:bg-gray-100">
                             <MoreVertical class="h-5 w-5" />
                         </button>
-
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end">
-
-                        <DropdownMenuItem
-                            @click="emit('edit')"
-                        >
+                        <DropdownMenuItem @click="emit('edit')">
                             <Pencil class="mr-2 h-4 w-4" />
-
                             Edit
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem
-                            class="text-red-600"
-                            @click="emit('delete')"
-                        >
+                        <DropdownMenuItem class="text-red-600" @click="emit('delete')">
                             <Trash2 class="mr-2 h-4 w-4" />
-
                             Delete
                         </DropdownMenuItem>
-
                     </DropdownMenuContent>
-
                 </DropdownMenu>
-
             </div>
-
         </CardHeader>
 
+        <!-- Divider -->
+        <div class="mx-6 border-t border-grey/10"></div>
+
         <CardContent>
-
             <div class="mb-5">
-
-                <Badge
-                    :variant="priorityBadge()"
-                >
-                    {{ priority }}
+                <Badge :variant="priorityVariant">
+                    {{ priorityLabel }}
                 </Badge>
-
             </div>
 
             <div class="space-y-2">
-
-                <Progress
-                    :model-value="progress"
+                <!-- Pass the dynamic color class to Progress -->
+                <Progress 
+                    :model-value="progress" 
+                    :indicator-class="progressColor"
                 />
 
-                <div
-                    class="flex items-center justify-between text-sm"
-                >
-
-                    <span class="font-medium">
+                <div class="flex items-center justify-between text-sm">
+                    <!-- Dynamic color for percentage -->
+                    <span class="font-medium" :class="percentageColor">
                         {{ progress }}%
                     </span>
 
                     <span class="text-gray-500">
-                        {{ progressStatus() }}
+                        {{ progressStatus }}
                     </span>
-
                 </div>
-
             </div>
-
         </CardContent>
-
     </Card>
 </template>
