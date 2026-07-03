@@ -34,6 +34,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits([
+    'open',
     'edit',
     'delete',
 ]);
@@ -52,6 +53,7 @@ const emit = defineEmits([
             :description="project.description"
             :priority="project.priority"
             :progress="project.progress"
+            @click="emit('open', project)"
             @edit="emit('edit', project)"
             @delete="emit('delete', project)"
         />

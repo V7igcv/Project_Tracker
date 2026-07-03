@@ -55,6 +55,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits([
+    'click',    
     'edit',
     'delete',
 ]);
@@ -82,7 +83,8 @@ const progressStatus = computed(() =>
 
 <template>
     <Card
-        class="transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+        class="cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+        @click="emit('click')"
     >
         <CardHeader class="pb-3">
             <div class="flex items-start justify-between gap-4">
@@ -97,18 +99,21 @@ const progressStatus = computed(() =>
 
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child>
-                        <button class="rounded-md p-2 transition hover:bg-gray-100">
+                        <button 
+                            class="rounded-md p-2 transition hover:bg-gray-100" 
+                            @click.stop
+                        >
                             <MoreVertical class="h-5 w-5" />
                         </button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem @click="emit('edit')">
+                        <DropdownMenuItem @click.stop="emit('edit')">
                             <Pencil class="mr-2 h-4 w-4" />
                             Edit
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem class="text-red-600" @click="emit('delete')">
+                        <DropdownMenuItem class="text-red-600" @click.stop="emit('delete')">
                             <Trash2 class="mr-2 h-4 w-4" />
                             Delete
                         </DropdownMenuItem>

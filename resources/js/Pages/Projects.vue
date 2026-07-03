@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 
 import { Button } from '@/Components/ui/button';
 
@@ -118,6 +118,10 @@ const deleteProject = () => {
 
     deleteDialogOpen.value = false;
 };
+
+const openProject = (project) => {
+    router.visit(`/projects/${project.id}`);
+};
 </script>
 
 <template>
@@ -173,6 +177,7 @@ const deleteProject = () => {
                 <ProjectGrid
                     v-if="projects.length > 0"
                     :projects="projects"
+                    @open="openProject"
                     @edit="openEditDialog"
                     @delete="openDeleteDialog"
                 />

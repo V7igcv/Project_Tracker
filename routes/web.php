@@ -19,6 +19,10 @@ Route::get('/projects', function () {
     return Inertia::render('Projects');
 })->middleware(['auth', 'verified'])->name('projects');
 
+Route::get('/projects/{project}', function ($project) {
+    return Inertia::render('ProjectPhases', ['project' => $project]);
+})->middleware(['auth'])->name('projects.phases');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
