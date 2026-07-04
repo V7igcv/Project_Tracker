@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
+import GanttNavigator from './GanttNavigator.vue';
+import DeleteDialog from '@/Components/phases/DeleteDialog.vue';
 
 import {
     ChevronDown,
@@ -48,6 +50,8 @@ const emit = defineEmits([
     'add-task',
     'edit',
     'delete',
+    'edit-task',
+    'delete-task',
 ]);
 
 const open = ref(true);
@@ -56,47 +60,166 @@ const progressColor = computed(() =>
     getProgressColor(props.progress)
 );
 
-const days = Array.from(
-    { length: 31 },
-    (_, i) => i + 1
-);
+const leftSectionClass =
+    'grid w-[500px] shrink-0 grid-cols-[minmax(0,1fr)_120px_120px]';
+
+const currentMonth = ref(new Date(2026, 0, 1));
+
+const monthLabel = computed(() => {
+
+    return currentMonth.value.toLocaleDateString(
+        'en-US',
+        {
+            month: 'long',
+            year: 'numeric',
+        }
+    );
+
+});
+
+const days = computed(() => {
+
+    const totalDays = new Date(
+        currentMonth.value.getFullYear(),
+        currentMonth.value.getMonth() + 1,
+        0
+    ).getDate();
+
+    return Array.from(
+        { length: totalDays },
+        (_, i) =>
+            new Date(
+                currentMonth.value.getFullYear(),
+                currentMonth.value.getMonth(),
+                i + 1
+            )
+    );
+
+});
+
+const previousMonth = () => {
+
+    currentMonth.value = new Date(
+        currentMonth.value.getFullYear(),
+        currentMonth.value.getMonth() - 1,
+        1
+    );
+
+};
+
+const nextMonth = () => {
+
+    currentMonth.value = new Date(
+        currentMonth.value.getFullYear(),
+        currentMonth.value.getMonth() + 1,
+        1
+    );
+
+};
 
 const localTasks = ref([]);
 
 watch(
     () => props.tasks,
     (value) => {
+
         localTasks.value = value.map(task => ({
             ...task,
-            completedDays: task.completedDays ?? [],
         }));
+
     },
     {
         immediate: true,
     }
 );
 
-const isPlannedDay = (task, day) => {
-    return day >= task.startDay && day <= task.endDay;
-};
-
-const isCompletedDay = (task, day) => {
-    return task.completedDays.includes(day);
-};
-
 const toggleCompletedDay = (task, day) => {
 
-    const index = task.completedDays.indexOf(day);
+    const dateString = formatDate(day);
+
+    const index = task.progresses.findIndex(
+        progress => progress.progressDate === dateString
+    );
 
     if (index > -1) {
 
-        task.completedDays.splice(index, 1);
+        task.progresses.splice(index, 1);
 
     } else {
 
-        task.completedDays.push(day);
+        task.progresses.push({
+            progressDate: dateString,
+        });
 
     }
+
+};
+
+const formatDate = (date) => {
+    return (
+        `${date.getFullYear()}-` +
+        `${String(date.getMonth() + 1).padStart(2, '0')}-` +
+        `${String(date.getDate()).padStart(2, '0')}`
+    );
+};
+
+const isPlannedDay = (task, day) => {
+
+    const dateString = formatDate(day);
+
+    return (
+        dateString >= task.startDate &&
+        dateString <= task.endDate
+    );
+
+};
+
+const isCompletedDay = (task, day) => {
+
+    const dateString = formatDate(day);
+
+    return task.progresses.some(
+        progress => progress.progressDate === dateString
+    );
+
+};
+
+const deleteDialogOpen = ref(false);
+
+const deleteType = ref('phase');
+
+const deleteTitle = ref('');
+
+const openDeletePhase = () => {
+
+    deleteType.value = 'phase';
+
+    deleteTitle.value =
+        `Phase ${props.phaseNumber}: ${props.phaseName}`;
+
+    deleteDialogOpen.value = true;
+
+};
+
+const openDeleteTask = (task) => {
+
+    deleteType.value = 'task';
+
+    deleteTitle.value = task.taskName;
+
+    deleteDialogOpen.value = true;
+
+};
+
+const confirmDelete = () => {
+
+    console.log(
+        'Delete',
+        deleteType.value,
+        deleteTitle.value
+    );
+
+    deleteDialogOpen.value = false;
 
 };
 </script>
@@ -214,7 +337,7 @@ const toggleCompletedDay = (task, day) => {
 
                     <DropdownMenuItem
                         class="text-red-600"
-                        @click="emit('delete')"
+                        @click="openDeletePhase"
                     >
 
                         <Trash2
@@ -240,108 +363,148 @@ const toggleCompletedDay = (task, day) => {
         class="border-t bg-white p-0"
     >
 
-        <div class="overflow-x-auto">
+        <div class="border-b bg-gray-50">
 
-            <table class="min-w-max border-collapse">
+            <div class="flex">
 
-                <!-- Header -->
+                <div :class="leftSectionClass"></div>
 
-                <thead>
+                <div class="min-w-0 flex-1 px-4 py-3">
 
-                    <tr class="bg-gray-50">
+                    <GanttNavigator
+                        :month-label="monthLabel"
+                        @previous="previousMonth"
+                        @next="nextMonth"
+                    />
 
-                        <th
-                            class="sticky left-0 z-10 border-b bg-gray-50 px-5 py-3 text-left font-semibold"
-                        >
-                            Task
-                        </th>
+                </div>
 
-                        <th
-                            class="border-b px-4 py-3 text-left font-semibold"
-                        >
-                            Start
-                        </th>
+            </div>
 
-                        <th
-                            class="border-b px-4 py-3 text-left font-semibold"
-                        >
-                            End
-                        </th>
+        </div>
 
-                        <th
-                            :colspan="days.length"
-                            class="border-b text-center font-semibold"
-                        >
-                            January 2026
-                        </th>
+        <div class="flex items-stretch">
 
-                    </tr>
+            <div class="w-[500px] shrink-0 border-r border-gray-200 bg-white">
 
-                    <tr>
+                <div class="grid h-10 grid-cols-[minmax(0,1fr)_120px_120px] border-b bg-gray-50">
 
-                        <th></th>
+                    <div class="border-r px-5 py-3 text-left font-semibold">
+                        Task
+                    </div>
 
-                        <th></th>
+                    <div class="border-r px-4 py-3 text-left font-semibold whitespace-nowrap">
+                        Start
+                    </div>
 
-                        <th></th>
+                    <div class="px-4 py-3 text-left font-semibold whitespace-nowrap">
+                        End
+                    </div>
 
-                        <th
+                </div>
+
+                <div
+                    v-for="task in localTasks"
+                    :key="task.id"
+                    class="grid h-[56px] grid-cols-[minmax(0,1fr)_120px_120px] border-b"
+                >
+
+                    <div class="border-r px-5 py-4">
+
+                        <div class="flex min-w-0 items-center gap-3">
+
+                            <input type="checkbox">
+
+                            <DropdownMenu>
+
+                                <DropdownMenuTrigger as-child>
+
+                                    <button
+                                        class="rounded-md p-1 transition hover:bg-gray-100"
+                                        @click.stop
+                                    >
+
+                                        <MoreVertical class="h-4 w-4 text-gray-500" />
+
+                                    </button>
+
+                                </DropdownMenuTrigger>
+
+                                <DropdownMenuContent align="start">
+
+                                    <DropdownMenuItem
+                                        @click.stop="emit('edit-task', task)"
+                                    >
+
+                                        <Pencil class="mr-2 h-4 w-4" />
+
+                                        Edit
+
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                        class="text-red-600"
+                                        @click.stop="openDeleteTask(task)"
+                                    >
+
+                                        <Trash2 class="mr-2 h-4 w-4" />
+
+                                        Delete
+
+                                    </DropdownMenuItem>
+
+                                </DropdownMenuContent>
+
+                            </DropdownMenu>
+
+                            <span class="min-w-0 truncate">
+                                {{ task.taskName }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="border-r px-4 py-4 whitespace-nowrap">
+                        {{ task.startDate }}
+                    </div>
+
+                    <div class="px-4 py-4 whitespace-nowrap">
+                        {{ task.endDate }}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="min-w-0 flex-1 overflow-x-auto">
+
+                <div class="min-w-max">
+
+                    <div class="flex h-10 border-b bg-gray-50">
+
+                        <div
                             v-for="day in days"
                             :key="day"
-                            class="h-10 w-10 border-b border-r text-xs text-gray-500"
+                            class="flex h-full w-8 shrink-0 items-center justify-center border-r text-xs text-gray-500"
                         >
-                            {{ day }}
-                        </th>
+                            {{ day.getDate() }}
+                        </div>
 
-                    </tr>
+                    </div>
 
-                </thead>
-
-                <!-- Body -->
-
-                <tbody>
-
-                    <tr
+                    <div
                         v-for="task in localTasks"
                         :key="task.id"
+                        class="flex h-[56px] items-stretch border-b bg-white"
                     >
 
-                        <td
-                            class="sticky left-0 border-r bg-white px-5 py-4"
-                        >
+                        <div class="flex">
 
-                            <div class="flex items-center gap-3">
-
-                                <input
-                                    type="checkbox"
-                                >
-
-                                {{ task.name }}
-
-                            </div>
-
-                        </td>
-
-                        <td
-                            class="border-r px-4"
-                        >
-                            {{ task.startDay }}
-                        </td>
-
-                        <td
-                            class="border-r px-4"
-                        >
-                            {{ task.endDay }}
-                        </td>
-
-                        <td
-                            v-for="day in days"
-                            :key="day"
-                            class="h-10 w-10 border-r border-b p-1"
-                        >
                             <div
-                                class="h-7 w-7 cursor-pointer rounded transition-all duration-150"
-
+                                v-for="day in days"
+                                :key="day"
+                                class="flex w-8 shrink-0 items-center justify-center self-stretch border-r transition-all duration-150"
                                 :class="{
 
                                     /*
@@ -368,21 +531,30 @@ const toggleCompletedDay = (task, day) => {
                                         !isPlannedDay(task, day),
 
                                 }"
-
                                 @click="toggleCompletedDay(task, day)"
-                            />
-                        </td>
+                            >
+                            </div>
 
-                    </tr>
+                        </div>
 
-                </tbody>
+                    </div>
 
-            </table>
+                </div>
+
+            </div>
 
         </div>
 
     </CardContent>
 
 </Card>
+
+    <DeleteDialog
+        :open="deleteDialogOpen"
+        :title="deleteTitle"
+        :type="deleteType"
+        @update:open="deleteDialogOpen = $event"
+        @confirm="confirmDelete"
+    />
 
 </template>

@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import EmptyPhases from '@/Components/phases/EmptyPhases.vue';
 import PhaseAccordion from '@/Components/phases/PhaseAccordion.vue';
+import PhaseDialog from '@/Components/phases/PhaseDialog.vue';
+import TaskDialog from '@/Components/phases/TaskDialog.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 import { Button } from '@/Components/ui/button';
@@ -42,19 +44,35 @@ const phases = ref([
         tasks: [
             {
                 id: 1,
-                name: 'Project Setup',
-                startDay: '1',
-                endDay: '5',
-                completedDays: [1,2],
+                taskName: 'Requirements',
+
+                startDate: '2026-01-02',
+                endDate: '2026-01-06',
+
+                isCompleted: false,
+
+                progresses: [
+                    { progressDate: '2026-01-02' },
+                    { progressDate: '2026-01-03' },
+                    { progressDate: '2026-01-04' },
+                ],
             },
+
             {
                 id: 2,
-                name: 'Requirement Analysis',
-                startDay: '3',
-                endDay: '10',
-                completedDays: [3,4,5],
+                taskName: 'UI Design',
+
+                startDate: '2026-01-07',
+                endDate: '2026-01-15',
+
+                isCompleted: false,
+
+                progresses: [
+                    { progressDate: '2026-01-07' },
+                    { progressDate: '2026-01-08' },
+                ],
             },
-        ],
+        ]
     },
 
     {
@@ -65,16 +83,103 @@ const phases = ref([
         tasks: [
             {
                 id: 3,
-                name: 'Authentication',
-                startDay: '8',
-                endDay: '18',
+                taskName: 'Authentication',
+                startDate: '2026-01-16',
+                endDate: '2026-01-25',
+                isCompleted: false,
+                progresses: [
+                    { progressDate: '2026-01-16' },
+                    { progressDate: '2026-01-17' },
+                ],
             },
         ],
     },
 ]);
 
+const phaseDialogOpen = ref(false);
+
+const phaseDialogMode = ref('create');
+
+const selectedPhase = ref({
+    phaseName: '',
+    description: '',
+});
+
 const openCreatePhaseDialog = () => {
-    console.log('Open Add Phase Dialog');
+
+    phaseDialogMode.value = 'create';
+
+    selectedPhase.value = {
+        phaseName: '',
+        description: '',
+    };
+
+    phaseDialogOpen.value = true;
+
+};
+
+const savePhase = (data) => {
+
+    console.log(data);
+
+    phaseDialogOpen.value = false;
+
+};
+
+const openEditPhaseDialog = (phase) => {
+
+    phaseDialogMode.value = 'edit';
+
+    selectedPhase.value = {
+        ...phase,
+    };
+
+    phaseDialogOpen.value = true;
+
+};
+
+const taskDialogOpen = ref(false);
+
+const taskDialogMode = ref('create');
+
+const selectedTask = ref({
+    taskName: '',
+    startDate: '',
+    endDate: '',
+});
+
+const openCreateTaskDialog = () => {
+
+    taskDialogMode.value = 'create';
+
+    selectedTask.value = {
+        taskName: '',
+        startDate: '',
+        endDate: '',
+    };
+
+    taskDialogOpen.value = true;
+
+};
+
+const openEditTaskDialog = (task) => {
+
+    taskDialogMode.value = 'edit';
+
+    selectedTask.value = {
+        ...task,
+    };
+
+    taskDialogOpen.value = true;
+
+};
+
+const saveTask = (data) => {
+
+    console.log(data);
+
+    taskDialogOpen.value = false;
+
 };
 </script>
 
@@ -152,6 +257,7 @@ const openCreatePhaseDialog = () => {
 
                     <Button
                         class="bg-[#A76A00] hover:bg-[#8A5A00]"
+                        @click="openCreatePhaseDialog"
                     >
 
                         <Plus
@@ -178,6 +284,10 @@ const openCreatePhaseDialog = () => {
                         :phase-name="phase.name"
                         :progress="phase.progress"
                         :tasks="phase.tasks"
+
+                        @edit="openEditPhaseDialog(phase)"
+                        @add-task="openCreateTaskDialog"
+                        @edit-task="openEditTaskDialog"
                     />
 
                 </div>
@@ -191,5 +301,21 @@ const openCreatePhaseDialog = () => {
         </div>
 
     </AuthenticatedLayout>
+
+    <PhaseDialog
+        :open="phaseDialogOpen"
+        :mode="phaseDialogMode"
+        :phase="selectedPhase"
+        @update:open="phaseDialogOpen = $event"
+        @save="savePhase"
+    />
+
+    <TaskDialog
+        :open="taskDialogOpen"
+        :mode="taskDialogMode"
+        :task="selectedTask"
+        @update:open="taskDialogOpen = $event"
+        @save="saveTask"
+    />
 
 </template>
