@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Phase extends Model
 {
@@ -13,6 +14,10 @@ class Phase extends Model
         'description',
     ];
 
+    protected $appends = [
+        'progress_percentage',
+    ];
+
     public function project()
     {
         return $this->belongsTo(Project::class);
@@ -21,5 +26,31 @@ class Phase extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+
+    protected function progressPercentage(): Attribute
+    {
+        return Attribute::make(
+
+            get: function () {
+
+                $totalTasks = $this->tasks->count();
+
+                if ($totalTasks === 0) {
+                    return 0;
+                }
+
+                $completedTasks = $this->tasks
+                    ->where('is_completed', true)
+                    ->count();
+
+                return round(
+                    ($completedTasks / $totalTasks) * 100,
+                    2
+                );
+
+            }
+
+        );
     }
 }

@@ -27,7 +27,7 @@ class Task extends Model
         return $this->belongsTo(Phase::class);
     }
 
-    public function progress()
+    public function progresses()
     {
         return $this->hasMany(TaskProgress::class);
     }
