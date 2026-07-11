@@ -40,10 +40,16 @@ const props = defineProps({
     project: {
         type: Object,
         default: () => ({
+            id: null,
             name: '',
             priority: 'Medium',
             description: '',
         }),
+    },
+
+    errors: {
+        type: Object,
+        default: () => ({}),
     },
 });
 
@@ -57,6 +63,8 @@ const form = reactive({
     priority: 'Medium',
     description: '',
 });
+
+const errors = computed(() => props.errors);
 
 watch(
     () => props.project,
@@ -137,7 +145,7 @@ const submit = () => {
                         placeholder="Enter project name"
                     />
 
-                    <InputError />
+                    <InputError :message="errors.name" />
 
                 </div>
 
@@ -194,6 +202,8 @@ const submit = () => {
                         rows="5"
                         placeholder="Enter project description..."
                     />
+
+                    <InputError :message="errors.description" />
 
                 </div>
 

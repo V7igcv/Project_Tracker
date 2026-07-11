@@ -30,10 +30,16 @@ const props = defineProps({
     task: {
         type: Object,
         default: () => ({
+            id: null,
             taskName: '',
             startDate: '',
             endDate: '',
         }),
+    },
+
+    errors: {
+        type: Object,
+        default: () => ({}),
     },
 });
 
@@ -47,6 +53,8 @@ const form = reactive({
     startDate: '',
     endDate: '',
 });
+
+const validationErrors = computed(() => props.errors);
 
 watch(
     () => props.task,
@@ -123,7 +131,7 @@ const submit = () => {
                     placeholder="Enter task name"
                 />
 
-                <InputError />
+                <InputError :message="validationErrors.task_name" />
 
             </div>
 
@@ -142,6 +150,8 @@ const submit = () => {
                     class="w-full"
                 />
 
+                <InputError :message="validationErrors.start_date" />
+
             </div>
 
             <!-- End Date -->
@@ -158,6 +168,8 @@ const submit = () => {
                     type="date"
                     class="w-full"
                 />
+
+                <InputError :message="validationErrors.end_date" />
 
             </div>
 

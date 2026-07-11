@@ -25,7 +25,7 @@ class Phase extends Model
 
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class)->orderBy('start_date')->orderBy('id');
     }
 
     protected function progressPercentage(): Attribute

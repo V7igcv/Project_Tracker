@@ -29,9 +29,15 @@ const props = defineProps({
     phase: {
         type: Object,
         default: () => ({
+            id: null,
             phaseName: '',
             description: '',
         }),
+    },
+
+    errors: {
+        type: Object,
+        default: () => ({}),
     },
 });
 
@@ -44,6 +50,8 @@ const form = reactive({
     phaseName: '',
     description: '',
 });
+
+const validationErrors = computed(() => props.errors);
 
 watch(
     () => props.phase,
@@ -125,7 +133,7 @@ const submit = () => {
                     placeholder="Enter phase name"
                 />
 
-                <InputError />
+                <InputError :message="validationErrors.phase_name" />
 
             </div>
 
@@ -141,6 +149,8 @@ const submit = () => {
                     v-model="form.description"
                     placeholder="Enter phase description..."
                 />
+
+                <InputError :message="validationErrors.description" />
 
             </div>
 

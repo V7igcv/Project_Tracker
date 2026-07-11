@@ -63,29 +63,42 @@ class TaskProgressController extends Controller
             ->first();
 
         if ($progress) {
-
             $progress->delete();
-
+            
+            // Return the updated task with its progresses
+            $task->load('progresses');
+            
             return response()->json([
-
                 'message' => 'Progress removed.',
-
+                'data' => [
+                    'task' => $task,
+                    'progresses' => $task->progresses->map(function($p) {
+                        return [
+                            'progress_date' => $p->progress_date->format('Y-m-d'),
+                        ];
+                    }),
+                ]
             ]);
-
         }
 
         $progress = TaskProgress::create([
-
             'task_id' => $task->id,
             'progress_date' => $request->progress_date,
-
         ]);
 
+        // Load the task with its progresses
+        $task->load('progresses');
+
         return response()->json([
-
             'message' => 'Progress added.',
-            'data' => $progress,
-
+            'data' => [
+                'task' => $task,
+                'progresses' => $task->progresses->map(function($p) {
+                    return [
+                        'progress_date' => $p->progress_date->format('Y-m-d'),
+                    ];
+                }),
+            ]
         ], 201);
     }
 }

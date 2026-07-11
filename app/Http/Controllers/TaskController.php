@@ -61,6 +61,8 @@ class TaskController extends Controller
 
         ]);
 
+        $task->load('progresses');
+
         return response()->json([
             'message' => 'Task created successfully.',
             'data' => $task,
@@ -118,6 +120,8 @@ class TaskController extends Controller
                 : null,
 
         ]);
+
+        $task->load('progresses');
 
         return response()->json([
 

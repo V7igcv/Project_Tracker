@@ -1,58 +1,45 @@
 <script setup>
-import { ref } from 'vue';
+import axios from 'axios';
+import { ref, watch } from 'vue';
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 
 import { Button } from '@/Components/ui/button';
 
-import {
-    Plus,
-} from 'lucide-vue-next';
+import { Plus } from 'lucide-vue-next';
 
 import ProjectGrid from '@/Components/projects/ProjectGrid.vue';
 import ProjectDialog from '@/Components/projects/ProjectDialog.vue';
 import DeleteProjectDialog from '@/Components/projects/DeleteProjectDialog.vue';
 import EmptyProjects from '@/Components/projects/EmptyProjects.vue';
 
-/*
-|--------------------------------------------------------------------------
-| Temporary Dummy Data
-|--------------------------------------------------------------------------
-| Replace this with Inertia props later.
-*/
-const projects = ref([
-    {
-        id: 1,
-        name: 'Project Tracker',
-        description:
-            'A web application for managing projects using Gantt Charts.',
-        priority: 'High',
-        progress: 65,
+const props = defineProps({
+    projects: {
+        type: Array,
+        default: () => [],
     },
-    {
-        id: 2,
-        name: 'Capstone System',
-        description:
-            'GIS-based evacuation management system for Legazpi City.',
-        priority: 'Medium',
-        progress: 35,
-    },
-    {
-        id: 3,
-        name: 'Portfolio Website',
-        description:
-            'Personal website showcasing projects and experience.',
-        priority: 'Low',
-        progress: 100,
-    },
-]);
+});
 
-/*
-|--------------------------------------------------------------------------
-| Dialog States
-|--------------------------------------------------------------------------
-*/
+const normalizeProject = (project) => ({
+    id: project.id,
+    name: project.name ?? project.project_name ?? '',
+    description: project.description ?? '',
+    priority: project.priority ?? 'Medium',
+    progress: Number(project.progress_percentage ?? project.progress ?? 0),
+});
+
+const projects = ref([]);
+
+watch(
+    () => props.projects,
+    (value) => {
+        projects.value = (value ?? []).map(normalizeProject);
+    },
+    {
+        immediate: true,
+    }
+);
 
 const projectDialogOpen = ref(false);
 const deleteDialogOpen = ref(false);
@@ -60,31 +47,45 @@ const deleteDialogOpen = ref(false);
 const dialogMode = ref('create');
 
 const selectedProject = ref({
+    id: null,
     name: '',
     priority: 'Medium',
     description: '',
 });
 
-/*
-|--------------------------------------------------------------------------
-| Open Dialogs
-|--------------------------------------------------------------------------
-*/
+const projectErrors = ref({});
 
-const openCreateDialog = () => {
-    dialogMode.value = 'create';
-
+const resetSelectedProject = () => {
     selectedProject.value = {
+        id: null,
         name: '',
         priority: 'Medium',
         description: '',
     };
+};
 
+const upsertProject = (project) => {
+    const normalized = normalizeProject(project);
+    const index = projects.value.findIndex((item) => item.id === normalized.id);
+
+    if (index === -1) {
+        projects.value.unshift(normalized);
+        return;
+    }
+
+    projects.value.splice(index, 1, normalized);
+};
+
+const openCreateDialog = () => {
+    dialogMode.value = 'create';
+    projectErrors.value = {};
+    resetSelectedProject();
     projectDialogOpen.value = true;
 };
 
 const openEditDialog = (project) => {
     dialogMode.value = 'edit';
+    projectErrors.value = {};
 
     selectedProject.value = {
         ...project,
@@ -94,6 +95,8 @@ const openEditDialog = (project) => {
 };
 
 const openDeleteDialog = (project) => {
+    projectErrors.value = {};
+
     selectedProject.value = {
         ...project,
     };
@@ -101,26 +104,56 @@ const openDeleteDialog = (project) => {
     deleteDialogOpen.value = true;
 };
 
-/*
-|--------------------------------------------------------------------------
-| Placeholder Actions
-|--------------------------------------------------------------------------
-*/
+const saveProject = async (data) => {
+    projectErrors.value = {};
 
-const saveProject = (data) => {
-    console.log(data);
+    const payload = {
+        project_name: data.name,
+        priority: data.priority,
+        description: data.description,
+    };
 
-    projectDialogOpen.value = false;
+    try {
+        let response;
+
+        if (dialogMode.value === 'create') {
+            response = await axios.post(route('projects.store'), payload);
+        } else {
+            response = await axios.put(
+                route('projects.update', selectedProject.value.id),
+                payload
+            );
+        }
+
+        upsertProject(response.data.data);
+        projectDialogOpen.value = false;
+    } catch (error) {
+        if (error.response?.status === 422) {
+            projectErrors.value = error.response.data.errors ?? {};
+            return;
+        }
+
+        console.error(error);
+    }
 };
 
-const deleteProject = () => {
-    console.log('Delete:', selectedProject.value);
+const deleteProject = async () => {
+    try {
+        await axios.delete(route('projects.destroy', selectedProject.value.id));
 
-    deleteDialogOpen.value = false;
+        projects.value = projects.value.filter(
+            (project) => project.id !== selectedProject.value.id
+        );
+
+        deleteDialogOpen.value = false;
+        resetSelectedProject();
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 const openProject = (project) => {
-    router.visit(`/projects/${project.id}`);
+    router.visit(route('projects.phases', project.id));
 };
 </script>
 
@@ -197,6 +230,7 @@ const openProject = (project) => {
             :open="projectDialogOpen"
             :mode="dialogMode"
             :project="selectedProject"
+            :errors="projectErrors"
             @update:open="projectDialogOpen = $event"
             @save="saveProject"
         />

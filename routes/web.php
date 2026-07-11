@@ -5,6 +5,8 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskProgressController;
+use App\Models\Project;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,10 +34,25 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/projects', function () {
-    return Inertia::render('Projects');
+    $projects = Project::where('user_id', Auth::id())
+        ->with([
+            'phases.tasks.progresses',
+        ])
+        ->latest()
+        ->get();
+
+    return Inertia::render('Projects', [
+        'projects' => $projects,
+    ]);
 })->middleware(['auth', 'verified'])->name('projects');
 
 Route::get('/projects/{project}', function ($project) {
+    $project = Project::where('user_id', Auth::id())
+        ->with([
+            'phases.tasks.progresses',
+        ])
+        ->findOrFail($project);
+
     return Inertia::render('ProjectPhases', [
         'project' => $project,
     ]);
