@@ -1,4 +1,6 @@
 <script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
 import { Head } from '@inertiajs/vue3';
@@ -14,6 +16,32 @@ import {
     Clock3,
     CircleCheckBig,
 } from 'lucide-vue-next';
+
+const stats = ref({
+    total_active_projects: 0,
+    total_in_progress_projects: 0,
+    total_completed_projects: 0,
+    projects: [],
+    overdue_tasks: [],
+    upcoming_deadlines: [],
+});
+
+const isLoading = ref(true);
+
+const fetchDashboardData = async () => {
+    try {
+        const response = await axios.get(route('dashboard.index'));
+        stats.value = response.data;
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+onMounted(() => {
+    fetchDashboardData();
+});
 </script>
 
 <template>
@@ -46,19 +74,19 @@ import {
 
                     <StatCard
                         title="Active Projects"
-                        :value="8"
+                        :value="stats.total_active_projects"
                         :icon="FolderKanban"
                     />
 
                     <StatCard
                         title="In Progress Projects"
-                        :value="5"
+                        :value="stats.total_in_progress_projects"
                         :icon="Clock3"
                     />
 
                     <StatCard
                         title="Completed Projects"
-                        :value="12"
+                        :value="stats.total_completed_projects"
                         :icon="CircleCheckBig"
                     />
 
@@ -68,7 +96,7 @@ import {
 
                 <div class="mt-8">
 
-                    <ProjectsTable />
+                    <ProjectsTable :projects="stats.projects" />
 
                 </div>
 
@@ -76,9 +104,9 @@ import {
 
                 <div class="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-                    <OverdueTasksTable />
+                    <OverdueTasksTable :tasks="stats.overdue_tasks" />
 
-                    <UpcomingDeadlinesTable />
+                    <UpcomingDeadlinesTable :tasks="stats.upcoming_deadlines" />
 
                 </div>
 

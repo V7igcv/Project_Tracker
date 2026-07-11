@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Carbon\Carbon;
 
 class Project extends Model
 {
@@ -19,6 +20,7 @@ class Project extends Model
 
     protected $appends = [
         'progress_percentage',
+        'last_updated_human',
     ];
 
     public function user()
@@ -57,6 +59,16 @@ class Project extends Model
                 );
 
             }
+
+        );
+    }
+
+    protected function lastUpdatedHuman(): Attribute
+    {
+        return Attribute::make(
+
+            get: fn () => Carbon::parse($this->updated_at)
+                ->diffForHumans()
 
         );
     }

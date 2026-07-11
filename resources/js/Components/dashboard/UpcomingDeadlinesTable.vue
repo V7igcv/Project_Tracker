@@ -9,6 +9,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/Components/ui/table';
+
+const props = defineProps({
+    tasks: {
+        type: Array,
+        required: true,
+    },
+});
 </script>
 
 <template>
@@ -31,34 +38,28 @@ import {
 
             <TableBody>
 
-                <TableRow>
-
-                    <TableCell>
-                        Testing
+                <TableRow v-if="props.tasks.length === 0">
+                    <TableCell colspan="3" class="py-8 text-center text-gray-500">
+                        No upcoming deadlines in the next 3 days.
                     </TableCell>
-
-                    <TableCell>
-                        Project Tracker
-                    </TableCell>
-
-                    <TableCell class="font-medium">
-                        Tomorrow
-                    </TableCell>
-
                 </TableRow>
 
-                <TableRow>
+                <TableRow
+                    v-else
+                    v-for="task in props.tasks"
+                    :key="task.id"
+                >
 
                     <TableCell>
-                        Documentation
+                        {{ task.task_name }}
                     </TableCell>
 
                     <TableCell>
-                        Capstone System
+                        {{ task.phase?.project?.project_name }}
                     </TableCell>
 
-                    <TableCell class="font-medium">
-                        3 days
+                    <TableCell class="font-medium text-gray-700">
+                        {{ task.due_human }}
                     </TableCell>
 
                 </TableRow>

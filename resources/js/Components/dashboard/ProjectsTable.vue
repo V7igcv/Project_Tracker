@@ -18,6 +18,13 @@ import {
     getProgressColor,
     getPercentageColor,
 } from '@/lib/projectUtils';
+
+const props = defineProps({
+    projects: {
+        type: Array,
+        required: true,
+    },
+});
 </script>
 
 <template>
@@ -36,48 +43,20 @@ import {
 
             <TableBody>
 
-                <TableRow>
-
-                    <TableCell class="font-medium">
-                        Project Tracker
+                <TableRow v-if="props.projects.length === 0">
+                    <TableCell colspan="4" class="py-8 text-center text-gray-500">
+                        No active projects.
                     </TableCell>
-
-                    <TableCell>
-
-                        <div class="space-y-2">
-
-                            <Progress 
-                                :model-value="65" 
-                                :indicator-class="getProgressColor(65)"
-                            />
-
-                            <p 
-                                class="text-xs font-semibold"
-                                :class="getPercentageColor(65)"
-                            >
-                                65%
-                            </p>
-
-                        </div>
-
-                    </TableCell>
-
-                    <TableCell>
-                        <Badge :variant="getPriorityVariant('High')">
-                            {{ getPriorityLabel('High') }}
-                        </Badge>
-                    </TableCell>
-
-                    <TableCell>
-                        2 hours ago
-                    </TableCell>
-
                 </TableRow>
 
-                <TableRow>
+                <TableRow
+                    v-else
+                    v-for="project in props.projects"
+                    :key="project.id"
+                >
 
                     <TableCell class="font-medium">
-                        Capstone System
+                        {{ project.project_name }}
                     </TableCell>
 
                     <TableCell>
@@ -85,15 +64,15 @@ import {
                         <div class="space-y-2">
 
                             <Progress 
-                                :model-value="35" 
-                                :indicator-class="getProgressColor(35)"
+                                :model-value="project.progress_percentage" 
+                                :indicator-class="getProgressColor(project.progress_percentage)"
                             />
 
                             <p 
                                 class="text-xs font-semibold"
-                                :class="getPercentageColor(35)"
+                                :class="getPercentageColor(project.progress_percentage)"
                             >
-                                35%
+                                {{ project.progress_percentage }}%
                             </p>
 
                         </div>
@@ -101,13 +80,13 @@ import {
                     </TableCell>
 
                     <TableCell>
-                        <Badge :variant="getPriorityVariant('Medium')">
-                            {{ getPriorityLabel('Medium') }}
+                        <Badge :variant="getPriorityVariant(project.priority)">
+                            {{ getPriorityLabel(project.priority) }}
                         </Badge>
                     </TableCell>
 
                     <TableCell>
-                        Yesterday
+                        {{ project.last_updated_human }}
                     </TableCell>
 
                 </TableRow>

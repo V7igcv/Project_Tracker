@@ -42,14 +42,21 @@ class DashboardController extends Controller
                 })
                 ->count();
 
-        $projectTable =
-            $projects
-                ->filter(function ($project) {
+                $priorityOrder = [
+                    'High' => 1,
+                    'Medium' => 2,
+                    'Low' => 3,
+                ];
 
-                    return $project->progress_percentage < 100;
-
-                })
-                ->values();
+                $projectTable =
+                    $projects
+                        ->filter(function ($project) {
+                            return $project->progress_percentage < 100;
+                        })
+                        ->sortBy(function ($project) use ($priorityOrder) {
+                            return $priorityOrder[$project->priority];
+                        })
+                        ->values();
 
         $overdueTasks = Task::whereHas('phase.project', function ($query) use ($user) {
 

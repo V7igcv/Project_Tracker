@@ -5,6 +5,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskProgressController;
+use App\Http\Controllers\DashboardController;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -167,6 +168,17 @@ Route::middleware('auth')
             '/{project}/phases/{phase}/tasks/{task}/progresses/toggle',
             [TaskProgressController::class, 'toggle']
         )->name('progresses.toggle');
+    });
+
+Route::middleware('auth')
+    ->prefix('/api/dashboard')
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [DashboardController::class, 'index']
+        )->name('dashboard.index');
+
     });
 
 require __DIR__.'/auth.php';

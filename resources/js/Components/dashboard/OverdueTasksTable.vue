@@ -9,6 +9,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/Components/ui/table';
+
+const props = defineProps({
+    tasks: {
+        type: Array,
+        required: true,
+    },
+});
 </script>
 
 <template>
@@ -31,34 +38,28 @@ import {
 
             <TableBody>
 
-                <TableRow>
-
-                    <TableCell>
-                        UI Design
+                <TableRow v-if="props.tasks.length === 0">
+                    <TableCell colspan="3" class="py-8 text-center text-gray-500">
+                        No overdue tasks. Great job!
                     </TableCell>
-
-                    <TableCell>
-                        Project Tracker
-                    </TableCell>
-
-                    <TableCell class="font-medium text-red-600">
-                        2 days overdue
-                    </TableCell>
-
                 </TableRow>
 
-                <TableRow>
+                <TableRow
+                    v-else
+                    v-for="task in props.tasks"
+                    :key="task.id"
+                >
 
                     <TableCell>
-                        Backend API
+                        {{ task.task_name }}
                     </TableCell>
 
                     <TableCell>
-                        Capstone System
+                        {{ task.phase?.project?.project_name }}
                     </TableCell>
 
                     <TableCell class="font-medium text-red-600">
-                        5 days overdue
+                        {{ task.overdue_human }}
                     </TableCell>
 
                 </TableRow>
