@@ -68,7 +68,7 @@ const emit = defineEmits([
     'update-task-complete',
 ]);
 
-const open = ref(true);
+const open = ref(false);
 
 const progressColor = computed(() =>
     getProgressColor(props.progress)
@@ -274,8 +274,7 @@ const openDeletePhase = () => {
 
     deleteType.value = 'phase';
 
-    deleteTitle.value =
-        `Phase ${props.phaseNumber}: ${props.phaseName}`;
+    deleteTitle.value = props.phaseName;
 
     deleteDialogOpen.value = true;
 
@@ -336,7 +335,6 @@ const confirmDelete = () => {
                 <h2
                     class="text-xl font-semibold text-gray-900"
                 >
-                    Phase {{ phaseNumber }}:
                     {{ phaseName }}
                 </h2>
 

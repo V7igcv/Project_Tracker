@@ -1,6 +1,9 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
+
+import LogoutDialog from '@/Components/main/LogoutDialog.vue';
 
 import {
     Menu,
@@ -16,6 +19,12 @@ const collapsed = ref(
         ? localStorage.getItem(storageKey) === 'true'
         : false,
 );
+
+const logoutDialogOpen = ref(false);
+
+const logout = () => {
+    router.post(route('logout'));
+};
 
 watch(collapsed, (value) => {
     localStorage.setItem(storageKey, String(value));
@@ -37,9 +46,19 @@ const toggleSidebar = () => {
         >
             <div
                 v-if="!collapsed"
-                class="truncate text-2xl font-bold text-[#FFEEDE]"
+                class="flex items-center gap-3"
             >
-                Project Tracker
+                <img
+                    src="/images/Elevate1.svg"
+                    alt="Elevate Logo"
+                    class="h-9 w-9"
+                >
+
+                <span
+                    class="truncate text-3xl font-bold text-[#FFEEDE]"
+                >
+                    ELEVATE
+                </span>
             </div>
 
             <button
@@ -100,11 +119,9 @@ const toggleSidebar = () => {
 
         <!-- Logout -->
         <div class="px-3 py-3">
-            <Link
-                :href="route('logout')"
-                method="post"
-                as="button"
+            <button
                 class="flex w-full items-center px-3 py-3 transition hover:bg-red-500/20"
+                @click="logoutDialogOpen = true"
             >
                 <LogOut class="h-5 w-5 shrink-0" />
 
@@ -114,7 +131,14 @@ const toggleSidebar = () => {
                 >
                     Log Out
                 </span>
-            </Link>
+            </button>
         </div>
     </aside>
+
+    <LogoutDialog
+        :open="logoutDialogOpen"
+        @update:open="logoutDialogOpen = $event"
+        @confirm="logout"
+    />
+
 </template>
