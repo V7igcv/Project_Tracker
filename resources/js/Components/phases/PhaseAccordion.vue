@@ -5,6 +5,13 @@ import GanttNavigator from './GanttNavigator.vue';
 import DeleteDialog from '@/Components/phases/DeleteDialog.vue';
 
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/Components/ui/tooltip';
+
+import {
     ChevronDown,
     ChevronRight,
     Plus,
@@ -565,9 +572,19 @@ const confirmDelete = () => {
 
                                 </DropdownMenu>
 
-                                <span class="min-w-0 truncate">
-                                    {{ task.taskName }}
-                                </span>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger as-child>
+                                            <span class="min-w-0 truncate cursor-default">
+                                                {{ task.taskName }}
+                                            </span>
+                                        </TooltipTrigger>
+
+                                        <TooltipContent>
+                                            <p>{{ task.taskName }}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
 
                             </div>
 
