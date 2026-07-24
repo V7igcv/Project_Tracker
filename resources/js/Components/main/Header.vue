@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import {
     Search,
     Bell,
@@ -13,6 +13,10 @@ const props = defineProps({
         default: () => [],
     },
 });
+
+const page = usePage();
+
+const user = computed(() => page.props.auth.user);
 
 const search = ref('');
 const showDropdown = ref(false);
@@ -129,17 +133,29 @@ onBeforeUnmount(() => {
             >
                 <div class="text-right">
                     <p class="text-sm font-semibold text-gray-900">
-                        Juan Dela Cruz
+                        {{ user.name }}
                     </p>
 
                     <p class="text-xs text-gray-500">
-                        juan.delacruz@email.com
+                        {{ user.email }}
                     </p>
                 </div>
 
-                <UserCircle2
-                    class="h-10 w-10 text-[#A76A00]"
-                />
+                <div
+                    class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full"
+                >
+                    <img
+                        v-if="user.profile_photo"
+                        :src="`/storage/${user.profile_photo}`"
+                        alt="Profile Picture"
+                        class="h-full w-full object-cover"
+                    >
+
+                    <UserCircle2
+                        v-else
+                        class="h-10 w-10 text-[#A76A00]"
+                    />
+                </div>
             </Link>
 
         </div>
