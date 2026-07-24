@@ -30,6 +30,11 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+
+    projects: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const normalizeDateString = (value) => {
@@ -408,7 +413,9 @@ const handleTaskComplete = async (phase, task) => {
 
     <Head :title="project.name" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout
+        :projects="projects"
+    >
 
         <div class="py-8">
 

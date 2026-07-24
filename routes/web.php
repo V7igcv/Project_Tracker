@@ -48,15 +48,25 @@ Route::get('/projects', function () {
 })->middleware(['auth', 'verified'])->name('projects');
 
 Route::get('/projects/{project}', function ($project) {
+
+    // Current project (with everything needed by ProjectPhases.vue)
     $project = Project::where('user_id', Auth::id())
         ->with([
             'phases.tasks.progresses',
         ])
         ->findOrFail($project);
 
+    // Lightweight list for the Header search
+    $projects = Project::where('user_id', Auth::id())
+        ->select('id', 'project_name')
+        ->orderBy('project_name')
+        ->get();
+
     return Inertia::render('ProjectPhases', [
         'project' => $project,
+        'projects' => $projects,
     ]);
+
 })->middleware(['auth'])->name('projects.phases');
 
 /*

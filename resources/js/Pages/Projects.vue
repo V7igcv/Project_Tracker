@@ -161,7 +161,9 @@ const openProject = (project) => {
 
     <Head title="Projects" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout
+        :projects="props.projects"
+    >
 
         <div class="py-8">
 

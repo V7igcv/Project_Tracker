@@ -86,20 +86,31 @@ class DashboardController extends Controller
             ->orderBy('end_date')
             ->get();
 
-        return response()->json([
+            return response()->json([
 
-            'total_active_projects' => $totalActiveProjects,
+                'total_active_projects' => $totalActiveProjects,
 
-            'total_in_progress_projects' => $totalInProgressProjects,
+                'total_in_progress_projects' => $totalInProgressProjects,
 
-            'total_completed_projects' => $totalCompletedProjects,
+                'total_completed_projects' => $totalCompletedProjects,
 
-            'projects' => $projectTable,
+                // Used by the Dashboard table
+                'projects' => $projectTable,
 
-            'overdue_tasks' => $overdueTasks,
+                // Used by the Header search bar
+                'search_projects' => $projects
+                    ->map(function ($project) {
+                        return [
+                            'id' => $project->id,
+                            'project_name' => $project->project_name,
+                        ];
+                    })
+                    ->values(),
 
-            'upcoming_deadlines' => $upcomingTasks,
+                'overdue_tasks' => $overdueTasks,
 
-        ]);
+                'upcoming_deadlines' => $upcomingTasks,
+
+            ]);
     }
 }

@@ -22,6 +22,7 @@ const stats = ref({
     total_in_progress_projects: 0,
     total_completed_projects: 0,
     projects: [],
+    search_projects: [],
     overdue_tasks: [],
     upcoming_deadlines: [],
 });
@@ -48,7 +49,9 @@ onMounted(() => {
 
     <Head title="Dashboard" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout
+        :projects="stats.search_projects"
+    >
 
         <div class="py-8">
 

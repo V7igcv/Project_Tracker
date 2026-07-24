@@ -1,6 +1,13 @@
 <script setup>
 import Sidebar from '@/Components/main/Sidebar.vue';
 import Header from '@/Components/main/Header.vue';
+
+defineProps({
+    projects: {
+        type: Array,
+        default: () => [],
+    },
+});
 </script>
 
 <template>
@@ -13,7 +20,9 @@ import Header from '@/Components/main/Header.vue';
         <div class="flex flex-1 flex-col overflow-hidden">
 
             <!-- New Header -->
-            <Header />
+            <Header 
+                :projects="projects"
+            />
 
             <!-- Optional Page Title Slot -->
             <div
