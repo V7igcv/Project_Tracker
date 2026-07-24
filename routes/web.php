@@ -6,6 +6,7 @@ use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskProgressController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +89,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])
         ->name('profile.photo');
+
+    Route::get(
+        '/notifications',
+        [NotificationController::class, 'index']
+    )->name('notifications.index');
 
 });
 
