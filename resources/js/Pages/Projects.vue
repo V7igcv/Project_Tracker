@@ -1,11 +1,17 @@
 <script setup>
 import axios from 'axios';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 
 import { Button } from '@/Components/ui/button';
+import {
+    Tabs,
+    TabsList,
+    TabsTrigger,
+    TabsContent,
+} from '@/Components/ui/tabs';
 
 import { Plus } from 'lucide-vue-next';
 
@@ -30,6 +36,14 @@ const normalizeProject = (project) => ({
 });
 
 const projects = ref([]);
+
+const inProgressProjects = computed(() =>
+    projects.value.filter(project => project.progress < 100)
+);
+
+const completedProjects = computed(() =>
+    projects.value.filter(project => project.progress >= 100)
+);
 
 watch(
     () => props.projects,
@@ -209,18 +223,67 @@ const openProject = (project) => {
 
                 <!-- Content -->
 
-                <ProjectGrid
-                    v-if="projects.length > 0"
-                    :projects="projects"
-                    @open="openProject"
-                    @edit="openEditDialog"
-                    @delete="openDeleteDialog"
-                />
+                <Tabs default-value="active">
 
-                <EmptyProjects
-                    v-else
-                    @create="openCreateDialog"
-                />
+                    <TabsList
+                        class="mb-6 rounded-lg border border-gray-200 bg-gray-100 p-1 shadow-sm"
+                    >
+                        <TabsTrigger
+                            value="active"
+                            class="rounded-md px-5 py-2 font-medium text-gray-600 transition-all duration-200 hover:bg-white hover:text-[#A76A00] data-[state=active]:bg-white data-[state=active]:text-[#A76A00] data-[state=active]:shadow-sm"
+                        >
+                            In Progress
+                        </TabsTrigger>
+
+                        <TabsTrigger
+                            value="completed"
+                            class="rounded-md px-5 py-2 font-medium text-gray-600 transition-all duration-200 hover:bg-white hover:text-[#A76A00] data-[state=active]:bg-white data-[state=active]:text-[#A76A00] data-[state=active]:shadow-sm"
+                        >
+                            Completed
+                        </TabsTrigger>
+                    </TabsList>
+
+                    <!-- In Progress -->
+
+                    <TabsContent value="active">
+
+                        <ProjectGrid
+                            v-if="inProgressProjects.length"
+                            :projects="inProgressProjects"
+                            @open="openProject"
+                            @edit="openEditDialog"
+                            @delete="openDeleteDialog"
+                        />
+
+                        <EmptyProjects
+                            v-else
+                            @create="openCreateDialog"
+                        />
+
+                    </TabsContent>
+
+                    <!-- Completed -->
+
+                    <TabsContent value="completed">
+
+                        <ProjectGrid
+                            v-if="completedProjects.length"
+                            :projects="completedProjects"
+                            @open="openProject"
+                            @edit="openEditDialog"
+                            @delete="openDeleteDialog"
+                        />
+
+                        <div
+                            v-else
+                            class="rounded-xl border border-dashed border-gray-300 bg-white py-20 text-center text-gray-500"
+                        >
+                            No completed projects yet.
+                        </div>
+
+                    </TabsContent>
+
+                </Tabs>
 
             </div>
 

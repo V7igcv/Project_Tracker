@@ -28,7 +28,7 @@ const emit = defineEmits([
         <h2
             class="text-2xl font-bold text-gray-900"
         >
-            No Projects Yet
+            No Projects In Progress Yet
         </h2>
 
         <!-- Description -->
@@ -36,7 +36,7 @@ const emit = defineEmits([
         <p
             class="mt-3 max-w-md text-sm leading-6 text-gray-500"
         >
-            Start organizing your work by creating your first project.
+            Start organizing your work by creating your project.
             Track project phases, monitor progress, and stay on top of deadlines
             with an interactive Gantt Chart.
         </p>
