@@ -65,7 +65,7 @@ const submit = () => {
                     <div class="flex items-center gap-2 text-[#A76A00]">
                         <FolderKanban class="h-5 w-5" />
                         <span class="font-semibold">
-                            Project Tracker
+                            ELEVATE
                         </span>
                     </div>
 

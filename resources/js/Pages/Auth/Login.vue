@@ -161,7 +161,7 @@ const submit = () => {
                     </div>
 
                     <!-- Remember Me -->
-                    <div>
+                    <!-- <div>
                         <label class="flex items-center">
                             <Checkbox
                                 name="remember"
@@ -172,7 +172,7 @@ const submit = () => {
                                 Remember me
                             </span>
                         </label>
-                    </div>
+                    </div> -->
 
                     <!-- Login Button -->
                     <button
